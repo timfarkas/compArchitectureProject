@@ -5,6 +5,8 @@ ycord: .word 1          # Can be changed (y-coordinate)
 xcord: .word 2          # Can be changed (x-coordinate)
 mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
+direction: .word 0 # Initial direction of the robot (0: East, 1: South, 2: West, 3: North)
+
 
 .text
 .globl main
@@ -13,10 +15,15 @@ main:
     lw $s1, mazewidth     # Load maze width into $s1
     lw $t0, xcord         # Load x-coordinate into $t0
     lw $t1, ycord         # Load y-coordinate into $t1
-    
-    # To do: Print welcome message: 
-    # Welcome to the MiPS maze solver!
-    # Enter a direction: R for right, L for left, F for forward, and B for backward:
+    lw $t2, mistakes      # Load the number of mistakes into $t2
+    lw $t3, total_moves   # Load the total number of moves into $t3
+    lw $t4, direction     # Load the initial direction into $t4
+
+    la $a0, welcome_msg   # Load the address of the welcome message
+    li $v0, 4             # Print the welcome message
+    syscall
+
+    j main_loop            # Jump to the main loop
 
 main_loop:
     # Get user input (direction)
@@ -30,6 +37,9 @@ main_loop:
     jal validate_move
     beq $v0, $zero, invalid_move  # If invalid move, go to invalid_move
     
+    # Update the position, if the move is valid
+    jal update_position
+
     # Check if the robot has reached the exit
     jal check_exit
     beq $v0, 1, exit           # If reached exit, go to exit
@@ -49,26 +59,64 @@ update_position:
     beq $s2, 'L', move_left
     beq $s2, 'R', move_right
 
-    # To do: Increment the total moves counter
+    # Increment the total moves counter
+    lw $t3, total_moves
+    addi $t3, $t3, 1
+    sw $t3, total_moves
+    jr $ra
 
+decrease_xcord:
+    # Decrease the x-coordinate by one
+    addi $t0, $t0, -1  
+    sw $t0, xcord
+    jr $ra
+
+increase_xcord:
+    # Increase the x-coordinate by one
+    addi $t0, $t0, 1
+    sw $t0, xcord
+    jr $ra 
+
+decrease_ycord:
+    # Decrease the y-coordinate by one
+    addi $t1, $t1, -1 
+    sw $t1, ycord
+    jr $ra
+
+increase_ycord:
+    # Increase the y-coordinate by one
+    addi $t1, $t1, 1 
+    sw $t1, ycord
     jr $ra
 
 move_forward:
-    # To do: 
+    # Identify the direction of the robot is facing and update the position accordingly
+    beq $t4, 0, increase_xcord # Facing East
+    beq $t4, 1, decrease_ycord # Facing South
+    beq $t4, 2, decrease_xcord # Facing West
+    beq $t4, 3, increase_ycord # Facing North
     jr $ra
 
 move_backward:
-    # To do: 
+    # Identify the direction of the robot is facing and update the position accordingly
+    beq $t4, 0, decrease_xcord # Facing East
+    beq $t4, 1, increase_ycord # Facing South
+    beq $t4, 2, increase_xcord # Facing West
+    beq $t4, 3, decrease_ycord # Facing North
     jr $ra
 
 move_left:
-    # To do: 
+    addi $t4, $t4, -1 # Turn counter-clockwise
+    andi $t4, $t4, 3  # Ensure the direction is within the boundary 0-3
+    jal move_forward  # Move forward
     jr $ra
 
 move_right:
-    # To do: 
+    addi $t4, $t4, 1 # Turn clockwise
+    andi $t4, $t4, 3 # Ensure the direction is within the boundary 0-3
+    jal move_forward # Move forward
     jr $ra
-    
+
 validate_move:
     # To do: Validate the move by comparing user input with the corresponding digit of the current cell in the maze (1 or 9)
     # Load the value of the current cell
@@ -109,15 +157,11 @@ exit:
 
 
 .data
+welcome_msg:
+    .asciiz "Welcome to the MiPS maze solver!\nEnter a direction: R for right, L for left, F for forward, and B for backward:\n"
 error_msg:
     .asciiz "Invalid move! Try again...\n"
 exit_msg:
     .asciiz "Congratulations! You reached the exit.\nNumber of mistakes: "
 total_moves_msg:
     .asciiz "\nTotal number of moves: "
-
-
-
-    
-
-
