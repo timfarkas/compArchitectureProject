@@ -90,7 +90,7 @@ increase_ycord:
     jr $ra
 
 move_forward:
-    # Identify the direction of the robot and update the position accordingly
+    # Identify the direction of the robot is facing and update the position accordingly
     beq $t4, 0, increase_xcord # Facing East
     beq $t4, 1, decrease_ycord # Facing South
     beq $t4, 2, decrease_xcord # Facing West
@@ -98,7 +98,7 @@ move_forward:
     jr $ra
 
 move_backward:
-    # Identify the direction of the robot and update the position accordingly
+    # Identify the direction of the robot is facing and update the position accordingly
     beq $t4, 0, decrease_xcord # Facing East
     beq $t4, 1, increase_ycord # Facing South
     beq $t4, 2, increase_xcord # Facing West
@@ -107,12 +107,14 @@ move_backward:
 
 move_left:
     addi $t4, $t4, -1 # Turn counter-clockwise
-    andi $t4, $t4, 3 # Ensure the direction is within the boundary 0-3
+    andi $t4, $t4, 3  # Ensure the direction is within the boundary 0-3
+    jal move_forward  # Move forward
     jr $ra
 
 move_right:
-    addi $t4, $t4, 1 # Turn counter-clockwise
+    addi $t4, $t4, 1 # Turn clockwise
     andi $t4, $t4, 3 # Ensure the direction is within the boundary 0-3
+    jal move_forward # Move forward
     jr $ra
 
 validate_move:
