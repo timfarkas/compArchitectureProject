@@ -77,8 +77,8 @@ else:
             count += 1
             mistakes += 1
 
-    print("Congratulation! You reached the exit.")
 
+print("Congratulation! You reached the exit.")
 print("Number of mistakes: ", mistakes)
 print("Total number of moves: ", count)
 
