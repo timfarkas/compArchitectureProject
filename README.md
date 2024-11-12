@@ -1,4 +1,37 @@
 # Assembly Programming Group Project
+
+
+# Task allocations:
+1. Demo program in Python (James)
+    - Realize all functions in Python
+    - Design methods to encode the maze
+2.General Code structure in MIPS (Jasmine)
+    - Lay out the structure and key components required for the program in MIPS, define key variables
+    - Make sure all parts of the code are aligned and work well together
+3.Encode the maze and load value (Bruce)
+    - Store the maze in MIPS as an 1-D array data
+    - Provide method to retrieve cell values based on X-Y coordinates
+4.Take input and move the robot (Clara)
+    - Record the robot position in MIPS 
+    - Provide instructions for user input
+    - Transfer user input like “F”, “B”, “L”, “R” into MIPS order and change relevant variables accordingly
+5. Movement feasibility check (Tim)
+    - Check whether a movement is valid or not
+    - Provide movement feedback as print output
+6. Exit check and result output (Peace)
+    - Once the robot reaches destination, need to know and stop the program
+    - Once reaching destination, print out the number of steps taken and mistakes made
+7. Robustness test with different mazes (Todd)
+    - Changes the maze into new ones (Manually or with algorithm)
+    - Test the program in different maze
+
+
+
+
+
+
+
+# Assembly Programming Group Project
 Group project involving development of a simple MIPS assembly language program, part of MSc Computer Science course at UCL.
 
 
