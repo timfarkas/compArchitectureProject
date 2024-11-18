@@ -36,13 +36,6 @@ main_loop:
     
     # Update the robot's position based on the user input
     jal update_position
-    
-    # Validate the move
-    jal validate_move
-    beq $v0, $zero, invalid_move  # If invalid move, go to invalid_move
-    
-    # Update the position, if the move is valid
-    jal update_position
 
     # Check if the robot has reached the exit
     jal check_exit
@@ -57,11 +50,19 @@ get_user_input:
     jr $ra
     
 update_position:
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
     # Update the robot's position based on the user input
     beq $s2, 'F', move_forward
     beq $s2, 'B', move_backward
     beq $s2, 'L', move_left
     beq $s2, 'R', move_right
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
 
     # Increment the total moves counter
     lw $t3, total_moves
@@ -94,34 +95,123 @@ increase_ycord:
     jr $ra
 
 move_forward:
-    # Identify the direction of the robot is facing and update the position accordingly
-    beq $t4, 0, increase_xcord # Facing East
-    beq $t4, 1, decrease_ycord # Facing South
-    beq $t4, 2, decrease_xcord # Facing West
-    beq $t4, 3, increase_ycord # Facing North
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    #check if valid move
+    jal check_forward ### this returns only if move is valid
+
+    jal increase_ycord ## move forward
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+
     jr $ra
 
 move_backward:
-    # Identify the direction of the robot is facing and update the position accordingly
-    beq $t4, 0, decrease_xcord # Facing East
-    beq $t4, 1, increase_ycord # Facing South
-    beq $t4, 2, increase_xcord # Facing West
-    beq $t4, 3, decrease_ycord # Facing North
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    #check if valid move
+    jal check_backward ### this returns only if move is valid
+    
+    jal decrease_ycord
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+
     jr $ra
 
 move_left:
-    addi $t4, $t4, -1 # Turn counter-clockwise
-    andi $t4, $t4, 3  # Ensure the direction is within the boundary 0-3
-    jal move_forward  # Move forward
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    #check if valid move
+    jal check_left ### this returns only if move is valid
+    
+    jal decrease_ycord ## move left
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+
     jr $ra
 
 move_right:
-    addi $t4, $t4, 1 # Turn clockwise
-    andi $t4, $t4, 3 # Ensure the direction is within the boundary 0-3
-    jal move_forward # Move forward
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+    
+    #check if valid move
+    jal check_right 
+    
+    jal increase_xcord ## move right
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+
     jr $ra
 
+check_forward:
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    jal load_cell_values # Load values of current cell
+    andi $t8, $t7, 8 ## check if fourth bit is set
+    bne $t8, 0, return_label ### return to move function if valid move
+    j invalid_move ## jump to invalid move if invalid
+
+check_right:
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    jal load_cell_values # Load values of current cell
+    andi $t8, $t7, 4 ## check if third bit is set
+    bne $t8, 0, return_label ### return to move function if valid move
+    j invalid_move ## jump to invalid move if invalid
+
+check_backward:
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    jal load_cell_values # Load values of current cell
+    andi $t8, $t7, 2 ## check if fourth bit is set
+    bne $t8, 0, return_label ### return to move function if valid move
+    j invalid_move ## jump to invalid move if invalid
+
+check_left:
+    ## Update stack with return address
+    addi $sp, $sp, -8      # Adjust stack pointer
+    sw $ra, 4($sp)         # Save return address
+
+    jal load_cell_values # Load values of current cell
+    andi $t8, $t7, 2 ## check if fourth bit is set
+    bne $t8, 0, return_label ### return to move function if valid move
+    j invalid_move ## jump to invalid move if invalid
+
+return_label:
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+    jr $ra
+
+invalid_move:
+    # To do: Print error message
+    
+    j main_loop
+
+
 load_cell_values:
+    # TODO Load cell bitmask into $t7
     mul $t5, $t1, $s1  # Multiply y-coordinate by width of maze, save the result in $t5
     add $t5, $t5, $t0  # Add the result by x-coordinate, and get the index of the target cell on the 1-D arrary, save the result back to $t5
     mul $t5, $t5, 5  # Since each cell contains 5 digits (4 number and a ","), multiply the index by 5 to get the actual memory address offset, and save the offset value into $t5
@@ -150,24 +240,6 @@ load_cell_values:
         move $a0,$t6
         li $v0, 11 # Print a single character
         syscall 
-
-validate_move:
-    # To do: Validate the move by comparing user input with the corresponding digit of the current cell in the maze (1 or 9)
-    # Load the value of the current cell
-    # Check if the move is valid
-    beq ??, ??, valid_move
-    li $v0, 0               # Return 0 for invalid move
-    jr $ra
-
-valid_move:
-    li $v0, 1               # Return 1 for valid move
-    jr $ra
-
-invalid_move:
-    # To do: Print error message
-    
-    j main_loop
-
 
 check_exit:
     # To do: checks if the robot has reached the exit
