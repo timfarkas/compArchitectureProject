@@ -32,19 +32,51 @@ y_position = 0
 count = 0
 mistakes = 0
 
+auto_solver = input("Would you like to use the auto-solver? (Y/N): ")
 
-print("Enter a direction: R for right, L for left, F for forward, and B for backwards: ")
+auto_solver_output = []
 
-while (x_position, y_position) != (0,5):
-    user_input = input("")
-    if user_input in maze[x_position][y_position]:
-        x_position += moves_x[user_input]
-        y_position += moves_y[user_input]
-        count += 1
-    else:
-        print("Invalid move! Try again...")
-        count += 1
-        mistakes += 1
+if auto_solver == "Y":
+    while (x_position, y_position) != (0,5):
+        if "L" in maze[x_position][y_position]:
+            x_position += moves_x["L"]
+            y_position += moves_y["L"]
+            auto_solver_output.append("L")
+            count += 1
+        elif "F" in maze[x_position][y_position]:
+            x_position += moves_x["F"]
+            y_position += moves_y["F"]
+            auto_solver_output.append("F")
+            count += 1
+            mistakes += 1
+        elif "B" in maze[x_position][y_position]:
+            x_position += moves_x["B"]
+            y_position += moves_y["B"]
+            auto_solver_output.append("B")
+            count += 1
+            mistakes += 2
+        elif "R" in maze[x_position][y_position]:
+            x_position += moves_x["R"]
+            y_position += moves_y["R"]
+            auto_solver_output.append("R")
+            count += 1
+            mistakes += 3
+    print(auto_solver_output)
+
+else:
+    print("Enter a direction: R for right, L for left, F for forward, and B for backwards: ")
+
+    while (x_position, y_position) != (0,5):
+        user_input = input("")
+        if user_input in maze[x_position][y_position]:
+            x_position += moves_x[user_input]
+            y_position += moves_y[user_input]
+            count += 1
+        else:
+            print("Invalid move! Try again...")
+            count += 1
+            mistakes += 1
+
 
 print("Congratulation! You reached the exit.")
 print("Number of mistakes: ", mistakes)
