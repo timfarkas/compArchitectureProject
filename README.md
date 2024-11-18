@@ -39,7 +39,7 @@
 	> jal {get_user_input}
 		- # print welcome
 		- # call for user input, save to [$v1]
-		- beq: # check if valid:
+		- beq: # check input with each direction "F,B,L,R" and see if the input matches any of them (could this part of validity check potentially be merged with {update_position}?)
 			yes > {valid_input}
 				- # move value of [$v1] to [$v0]
 				> jr $ra 
@@ -48,22 +48,23 @@
 	- # move value of [$v0] into [$s2] # namely user input
 	> jal {update_position}
 		- save $ra
-		- based on [$s2], direct to corresponding move function 
-		> beq {move_forward}
+		- based on [$s2], direct to corresponding move function {move_forward},{move_backward},{move_left},{move_right}
+		> beq {move_forward} (for example)
 			- save $ra
 			> jal {check_forward}
 				- save $ra
 				> jal {load_cell_values}
-                    - # based on xcord [$t0] and ycord [$t1], return a index [$t5] on 1D-array 
-					- # get cell values into [$t7] (not finished yet, this part might be simplified)
-				- # compare $t7 and input direction, return result in [t$8]
+                   		 	- # based on xcord [$t0] and ycord [$t1], return a address [$t5] on 1D-array
+					 **to do: need to transfer address [$t5] into cell value [$t7]**
+					- # get cell value into [$t7]
+				- # compare [$t7] and input direction, return result in [t$8]
 				- bnq: # check if move is valid
 					yes > {return_label}
 						lw $ra
 						addi $sp, $sp, 8 (move back to {update_position}?)
 					> invalid_move
-					 	 **to do: need to consider what will happen if stuck in the wall**
-                         **to do: need to add a mistake count at here**
+					**to do: need to consider what will happen if stuck in the wall**
+                         		**to do: need to add a mistake count at here**
     		> jal {increase_xcord} (for example)  
     			- # add [$t1] by 1
                 - # save [$t1] back into .xcord (maybe not necessary?) 
