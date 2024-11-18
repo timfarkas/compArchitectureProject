@@ -19,9 +19,8 @@ main:
     lw $s1, mazewidth     # Load maze width into $s1
     lw $t0, xcord         # Load x-coordinate into $t0
     lw $t1, ycord         # Load y-coordinate into $t1
-    lw $t2, mistakes      # Load the number of mistakes into $t2
-    lw $t3, total_moves   # Load the total number of moves into $t3
-    lw $t4, direction     # Load the initial direction into $t4
+    lw $s2, mistakes      # Load the number of mistakes into $s2
+    lw $s3, total_moves   # Load the total number of moves into $s3
 
     la $a0, welcome_msg   # Load the address of the welcome message
     li $v0, 4             # Print the welcome message
@@ -35,6 +34,7 @@ main_loop:
     move $s2, $v0            # Store the user input (R, L, F, B) in $s2
     
     # Update the robot's position based on the user input
+
     jal update_position
 
     # Check if the robot has reached the exit
@@ -47,6 +47,25 @@ get_user_input:
     # To do: Read user input (F, B, L, R)
     li $v0, 12
     syscall
+    move $v1, $v0
+
+    # Check if the user input is valid (F, B, L, R)
+    li $t4, 'F'
+    beq $v1, $t4, valid_input
+    li $t4, 'B'
+    beq $v1, $t4, valid_input
+    li $t4, 'L'
+    beq $v1, $t4, valid_input
+    li $t4, 'R'
+    beq $v1, $t4, valid_input
+
+    la $a0, input_error_msg
+    li $v0, 4
+    syscall
+    j get_user_input
+
+valid_input:
+    move $v0, $v1
     jr $ra
     
 update_position:
@@ -55,29 +74,17 @@ update_position:
     sw $ra, 4($sp)         # Save return address
 
     # Update the robot's position based on the user input
-    beq $s2, 'F', move_forward
-    beq $s2, 'B', move_backward
-    beq $s2, 'L', move_left
-    beq $s2, 'R', move_right
+    beq $t4, 'F', move_forward
+    beq $t4, 'B', move_backward
+    beq $t4, 'L', move_left
+    beq $t4, 'R', move_right
 
     # Increment the total moves counter
-    lw $t3, total_moves
-    addi $t3, $t3, 1
-    sw $t3, total_moves
-
-    ## Restore return address and stack pointer
-    lw $ra, 4($sp)         # Restore return address
-    addi $sp, $sp, 8       # Adjust stack pointer back
-
+    addi $s3, $s3, 1
+    sw $s3, total_moves
     jr $ra
 
-decrease_xcord:
-    # Decrease the x-coordinate by one
-    addi $t0, $t0, -1  
-    sw $t0, xcord
-    jr $ra
-
-increase_xcord:
+move_forward:
     # Increase the x-coordinate by one
     addi $t0, $t0, 1
     sw $t0, xcord
@@ -266,9 +273,11 @@ exit:
 .data
 welcome_msg:
     .asciiz "Welcome to the MiPS maze solver!\nEnter a direction: R for right, L for left, F for forward, and B for backward:\n"
-error_msg:
+move_error_msg:
     .asciiz "Invalid move! Try again...\n"
 exit_msg:
     .asciiz "Congratulations! You reached the exit.\nNumber of mistakes: "
 total_moves_msg:
     .asciiz "\nTotal number of moves: "
+input_error_msg:
+    .asciiz "Invalid input! Please enter R, L, F, or B.\n"
