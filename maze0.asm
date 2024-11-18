@@ -7,6 +7,8 @@ mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
 direction: .word 0 # Initial direction of the robot (0: East, 1: South, 2: West, 3: North)
 
+direction: .word 0 # Initial direction of the robot (0: East, 1: South, 2: West, 3: North)
+
 
 .text
 .globl main
@@ -32,6 +34,10 @@ main_loop:
     # Validate the move
     jal validate_move
     beq $v0, $zero, invalid_move  # If invalid move, go to invalid_move
+    
+    # Update the position, if the move is valid
+    jal update_position
+
     
     # Update the position, if the move is valid
     jal update_position
