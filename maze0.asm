@@ -60,14 +60,15 @@ update_position:
     beq $s2, 'L', move_left
     beq $s2, 'R', move_right
 
-    ## Restore return address and stack pointer
-    lw $ra, 4($sp)         # Restore return address
-    addi $sp, $sp, 8       # Adjust stack pointer back
-
     # Increment the total moves counter
     lw $t3, total_moves
     addi $t3, $t3, 1
     sw $t3, total_moves
+
+    ## Restore return address and stack pointer
+    lw $ra, 4($sp)         # Restore return address
+    addi $sp, $sp, 8       # Adjust stack pointer back
+
     jr $ra
 
 decrease_xcord:
