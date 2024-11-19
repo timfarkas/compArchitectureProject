@@ -1,6 +1,5 @@
 # Assembly Programming Group Project
 
-
 # Task allocations:
 1. Demo program in Python (James)
     - Realize all functions in Python
@@ -26,9 +25,55 @@
     - Test the program in different maze
 
 
-
-
-
+# Program structure (Pseudo Code) - might be a little different from real code in terms of variable names
+ main 
+ #define variables 
+ [$s0]: address of maze array
+ [$s1]: mazewidth 
+ [$t0]: starting-xcord 
+ [$t1]: starting-ycord
+ [$t2]: number of mistakes
+ [$t3]: number of moves
+ **to do: maze selection could be placed here**
+ > j {main_loop}
+	> jal {get_user_input}
+		- # print welcome
+		- # call for user input, save to [$v1]
+		- beq: # check input with each direction "F,B,L,R" and see if the input matches any of them (could this part of validity check potentially be merged with {update_position}?)
+			yes > {valid_input}
+				- # move value of [$v1] to [$v0]
+				> jr $ra 
+			- # print the massage: input_error_msg
+			- j {get_user_inpt}
+	- # move value of [$v0] into [$s2] # namely user input
+	> jal {update_position}
+		- save $ra
+		- based on [$s2], direct to corresponding move function {move_forward},{move_backward},{move_left},{move_right}
+		> beq {move_forward} (for example)
+			- save $ra
+			> jal {check_forward}
+				- save $ra
+				> jal {load_cell_values}
+                   		 	- # based on xcord [$t0] and ycord [$t1], return a address [$t5] on 1D-array
+					 **to do: need to transfer address [$t5] into cell value [$t7]**
+					- # get cell value into [$t7]
+				- # compare [$t7] and input direction, return result in [t$8]
+				- bnq: # check if move is valid
+					yes > {return_label}
+						lw $ra
+						addi $sp, $sp, 8 (move back to {update_position}?)
+					> invalid_move
+					**to do: need to consider what will happen if stuck in the wall**
+                         		**to do: need to add a mistake count at here**
+    		> jal {increase_xcord} (for example)  
+    			- # add [$t1] by 1
+                - # save [$t1] back into .xcord (maybe not necessary?) 
+    			> jr $ra
+		    > jr $ra
+       - # add number of moves [$t3] by 1
+       - # save [$t3] back into .total_moves (maybe not necessary?)
+       **to do: exit check could be placed here**
+       > jr $ra
 
 
 # Assembly Programming Group Project
