@@ -9,7 +9,6 @@ xcord: .word 2 # Can change this. Input ranges from 0-5 (6 columns in total). In
 
 mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
-direction: .word 0 # Initial direction of the robot (0: East, 1: South, 2: West, 3: North)
 
 
 .text
@@ -83,12 +82,6 @@ update_position:
     addi $s3, $s3, 1
     sw $s3, total_moves
     jr $ra
-
-move_forward:
-    # Increase the x-coordinate by one
-    addi $t0, $t0, 1
-    sw $t0, xcord
-    jr $ra 
 
 decrease_ycord:
     # Decrease the y-coordinate by one
