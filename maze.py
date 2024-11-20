@@ -1,17 +1,17 @@
 import random
 
-class Cell:
-    def __init__(self, row, col):
+class Cell: ####### Generates the size of the maze 
+    def __init__(self, row, col): 
         self.row = row
         self.col = col
-        self.walls = {"top": True, "right": True, "bottom": True, "left": True}
+        self.walls = {"top": True, "right": True, "bottom": True, "left": True} # Assigning the edges of the maze to have string values
         self.visited = False
 
     def remove_wall(self, neighbor, direction):
         self.walls[direction] = False
         neighbor.walls[opposite_direction(direction)] = False
 
-def opposite_direction(direction):
+def opposite_direction(direction): 
     opposites = {"top": "bottom", "bottom": "top", "left": "right", "right": "left"}
     return opposites[direction]
 
@@ -21,8 +21,7 @@ class Maze:
         self.size = size
         self.grid = [[Cell(row, col) for col in range(size)] for row in range(size)]
 
-    def generate_maze(self):
-        # Recursive Backtracking Algorithm
+    def generate_maze(self): ####### Recursive Algo so maze covers the full cell size.
         start_cell = self.grid[0][0]
         self._carve_path(start_cell)
 
@@ -32,11 +31,11 @@ class Maze:
         random.shuffle(neighbors)
 
         for neighbor, direction in neighbors:
-            if not neighbor.visited:
+            if not neighbor.visited: # Removes wall so that corridor can be made.
                 current_cell.remove_wall(neighbor, direction)
                 self._carve_path(neighbor)
 
-    def get_unvisited_neighbors(self, cell):
+    def get_unvisited_neighbors(self, cell): # Builds on corridor functionality through recursion
         neighbors = []
         directions = {
             "top": (-1, 0),
@@ -52,32 +51,27 @@ class Maze:
                     neighbors.append((neighbor, direction))
         return neighbors
     
-    def create_openings(self):
-        # Entrance on the left wall
+    def create_openings(self): ######## Entrance on the left wall - Entrance will always be on the left edge.
         entrance_row = random.randint(0, self.size - 1)
         entrance = self.grid[entrance_row][0]
-        entrance.walls["left"] = False
-        # Entrance position for 
-        print(f"Entrance at: (row {entrance_row}, col 0), press 'forward' to start!")
+        entrance.walls["left"] = False # Creates gap for entrance on left edge
+        # Player must go forward to enter the maze
+        print(f"Entrance at: (row {entrance_row}, col 0). Move 'forward' to start!")
 
-        # Exit on the top
+        # Exit gap is in the top only
         exit_col = random.randint(0, self.size - 1)
         exit_cell = self.grid[0][exit_col]
-        exit_cell.walls["top"] = False
+        exit_cell.walls["top"] = False # Creates gap for exit on top edge
         print(f"Exit at: (row 0, col {exit_col})")
 
-    def _remove_outer_wall(self, position):
-        col, direction = position
-        self.grid[row].walls[direction] = False
-
-    def print_maze(self):
+    def print_maze(self): 
         for row_index, row in enumerate(self.grid):
             # Print the top walls
             print("".join("+" + ("---" if cell.walls["top"] else "   ") for cell in row) + "+")
             # Print the side walls
             print("".join(("|" if cell.walls["left"] else " ") + "   " for cell in row) +
-                ("|" if row[-1].walls["right"] else " "))  # Ensure the rightmost wall is printed correctly
-        # Print the bottom walls of the last row
+                ("|" if row[-1].walls["right"] else " "))
+        # Print the bottom edge walls
         print("".join("+" + ("---" if cell.walls["bottom"] else "   ") for cell in self.grid[-1]) + "+")
 
 
