@@ -10,6 +10,7 @@ myarray: .ascii "
 "
 # Each cell contains 4 digits of number. The 4 digits stand for 4 directions, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
 # All cells in the first row and first column are considered outside the maze, and are filled with number "0000", except for the starting point.
+# The maze is 6x5 
 
 mazewidth: .word 6
 ycord: .word 1 # Can change this. Input ranges from 0-6 (7 rows in total).
