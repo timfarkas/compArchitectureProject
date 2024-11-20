@@ -56,13 +56,13 @@ class Maze:
         entrance = self.grid[entrance_row][0]
         entrance.walls["left"] = False # Creates gap for entrance on left edge
         # Player must go forward to enter the maze
-        print(f"Entrance at: (row {entrance_row}, col 0). Move 'forward' to start!")
+        print(f"Entrance at: (col 0, row {entrance_row}). Move 'forward' to start!")
 
         # Exit gap is in the top only
         exit_col = random.randint(0, self.size - 1)
         exit_cell = self.grid[0][exit_col]
         exit_cell.walls["top"] = False # Creates gap for exit on top edge
-        print(f"Exit at: (row 0, col {exit_col})")
+        print(f"Exit at: (col {exit_col}, row 0)")
 
     def print_maze(self): 
         for row_index, row in enumerate(self.grid):
@@ -73,8 +73,10 @@ class Maze:
                 ("|" if row[-1].walls["right"] else " "))
         # Print the bottom edge walls
         print("".join("+" + ("---" if cell.walls["bottom"] else "   ") for cell in self.grid[-1]) + "+")
+        print("You must move forward to begin.")
 
-
+# def first_Move_Forward_Only(self):
+    # Robot can only move forward to begin the maze and counter. Once it has taken that first step forward it cannot move out of the entrance. 
 
 
 
