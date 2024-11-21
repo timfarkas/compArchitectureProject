@@ -1,7 +1,16 @@
 .data
-myarray: .ascii "0000,0000,0000,0000,0000,0000,0000,1000,0110,1000,1110,0011,0000,1100,1111,0010,0101,0100,0000,0001,1001,1110,0011,0001,0000,1100,1110,0111,1000,0111,0000,0001,0101,1001,1110,0011,1000,1000,1011,0010,1001,0010"
-# Each cell contains 4 digits of number. The 4 digits stand for 4 directions, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path#
+myarray: .ascii "
+0000, 0000, 0000, 0000, 0000, 0100,
+0000, 1000, 0110, 1000, 1110, 0011,
+0000, 1100, 0000, 0010, 0101, 0100,
+0000, 0001, 1001, 1110, 0011, 0101,
+0000, 1100, 1110, 0111, 1000, 0111,
+0000, 0001, 0101, 1001, 1110, 0011,
+0000, 1010, 1011, 0010, 1001, 0010,
+"
+# Each cell contains 4 digits of number. The 4 digits stand for 4 directions, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
 # All cells in the first row and first column are considered outside the maze, and are filled with number "0000", except for the starting point.
+# The maze is 5x6 
 
 mazewidth: .word 6
 ycord: .word 1 # Can change this. Input ranges from 0-6 (7 rows in total).
@@ -22,6 +31,10 @@ main:
     lw $s3, total_moves   # Load the total number of moves into $s3
 
     la $a0, welcome_msg   # Load the address of the welcome message
+    li $v0, 4             # Print the welcome message
+    syscall
+
+    la $a1, begin_msg   # Load the address of the begin message
     li $v0, 4             # Print the welcome message
     syscall
 
@@ -266,6 +279,8 @@ exit:
 .data
 welcome_msg:
     .asciiz "Welcome to the MiPS maze solver!\nEnter a direction: R for right, L for left, F for forward, and B for backward:\n"
+begin_msg:
+    .asciiz "Move Forward to begin."
 move_error_msg:
     .asciiz "Invalid move! Try again...\n"
 exit_msg:
