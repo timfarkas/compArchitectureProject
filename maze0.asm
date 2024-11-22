@@ -109,7 +109,7 @@ decrease_xcord:
     jr $ra
 
 increase_xcord:
-    # Increase the y-coordinate by one
+    # Increase the x-coordinate by one
     addi $t0, $t0, 1 
     jr $ra
 
