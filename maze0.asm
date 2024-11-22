@@ -245,11 +245,11 @@ invalid_move_forward:
     addi $s3, $s3, 1 # increment the number of moves by 1
     sw $s3, total_moves #save the total moves to the 'total_moves' variable
 
-    li $t8, 'B' # load the character 'B' into register $t8
-    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'B' to get unstuck
-
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'B' # load the character 'B' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'B' to get unstuck
 
     j invalid_move_forward # if 'B' is not entered run invalid_move_forward again
 
@@ -265,11 +265,11 @@ invalid_move_backwards:
     addi $s3, $s3, 1 # increment the number of moves by 1
     sw $s3, total_moves #save the total moves to the 'total_moves' variable
 
-    li $t8, 'F' # load the character 'F' into register $t8
-    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'F' to get unstuck
-
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'F' # load the character 'F' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'F' to get unstuck
 
     j invalid_move_backwards # if 'F' is not entered run invalid_move_backwards again
 
@@ -285,11 +285,11 @@ invalid_move_left:
     addi $s3, $s3, 1 # increment the number of moves by 1
     sw $s3, total_moves #save the total moves to the 'total_moves' variable
 
-    li $t8, 'R' # load the character 'R' into register $t8
-    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
-
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'R' # load the character 'R' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
 
     j invalid_move_left # if 'R' is not entered run invalid_move_left again
 
@@ -305,11 +305,11 @@ invalid_move_right:
     addi $s3, $s3, 1 # increment the number of moves by 1
     sw $s3, total_moves #save the total moves to the 'total_moves' variable
 
-    li $t8, 'L' # load the character 'L' into register $t8
-    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
-
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'L' # load the character 'L' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
 
     j invalid_move_right # if 'L' is not entered run invalid_move_right again
 
