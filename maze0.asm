@@ -121,17 +121,26 @@ update_position:
     sw $s3, total_moves
     jr $ra
 
+decrease_xcord:
+    # Decrease the x-coordinate by one
+    addi $t0, $t0, -1 
+    jr $ra
+
+increase_xcord:
+    # Increase the x-coordinate by one
+    addi $t0, $t0, 1 
+    jr $ra
+
 decrease_ycord:
     # Decrease the y-coordinate by one
     addi $t1, $t1, -1 
-    sw $t1, ycord
     jr $ra
 
 increase_ycord:
     # Increase the y-coordinate by one
     addi $t1, $t1, 1 
-    sw $t1, ycord
     jr $ra
+
 
 move_forward:
     ## Update stack with return address
@@ -141,7 +150,7 @@ move_forward:
     #check if valid move
     jal check_forward ### this returns only if move is valid
 
-    jal increase_ycord ## move forward
+    jal increase_xcord ## move forward
 
     ## Restore return address and stack pointer
     lw $ra, 4($sp)         # Restore return address
@@ -157,7 +166,7 @@ move_backward:
     #check if valid move
     jal check_backward ### this returns only if move is valid
     
-    jal decrease_ycord
+    jal decrease_xcord
 
     ## Restore return address and stack pointer
     lw $ra, 4($sp)         # Restore return address
@@ -189,7 +198,7 @@ move_right:
     #check if valid move
     jal check_right 
     
-    jal increase_xcord ## move right
+    jal increase_ycord ## move right
 
     ## Restore return address and stack pointer
     lw $ra, 4($sp)         # Restore return address
