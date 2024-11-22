@@ -37,15 +37,33 @@ main:
      # $t6 is reserved to save the value of a certain direction (wall) within a certain cell
      # $t7 is reserved for checking if the move direction is valid
      # $t8 is reserved for checking if the input is correct when the robot has been stuck in a wall
+    
     la $a0, welcome_msg   # Load the address of the welcome message
     li $v0, 4             # Print the welcome message
     syscall
 
-    la $a1, begin_msg   # Load the address of the begin message
-    li $v0, 4             # Print the welcome message
+    j beginning_loop
+
+## loops until user enters maze
+beginning_loop:
+    la $a0, enter_maze_msg   # Load the address of the enter maze message
+    li $v0, 4             # Print the enter maze message
     syscall
 
-    j main_loop            # Jump to the main loop
+    ### Read inital character
+    addi $v0, $zero, 12 
+	syscall
+	move $t1, $v0
+
+    beq $t1, 'R', start_maze
+	j beginning_loop
+
+### informs user they have entered the maze and starts main loop
+start_maze:
+	addi $v0, $zero, 4 
+	la $a0, maze_start_msg
+	syscall
+	j main_loop
 
 main_loop:
     # Get user input (direction)
@@ -279,10 +297,12 @@ exit:
 
 
 .data
-welcome_msg:
-    .asciiz "Welcome to the MiPS maze solver!\nEnter a direction: R for right, L for left, F for forward, and B for backward:\n"
-begin_msg:
-    .asciiz "Move Forward to begin."
+welcome_msg: 
+    .asciiz "\n\nWelcome to the MiPS maze solver!\nSteer the robot by enter directions: R for right, L for left, F for forward, and B for backward.\n"
+enter_maze_msg: 
+    .asciiz "\nInput R to enter the maze.\n"
+maze_start_msg: 
+    .asciiz "---\n\nYOU ENTER THE MAZE\n\n---"
 move_error_msg:
     .asciiz "Invalid move! Try again...\n"
 exit_msg:
