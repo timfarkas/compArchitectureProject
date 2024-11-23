@@ -355,23 +355,39 @@ load_cell_address:
   
 
 check_exit:
-    # To do: checks if the robot has reached the exit
-    # Access the current cell value
-    # Check if the robot reach to the exit, if so return 1 (exit condition)
-    
-    beq ??, ??, exit_found  # If value is 1, exit found    
-    li $v0, 0                 # Return 0 if not exit
+    # Check if x = 5 and y = 0
+    li $t8, 5                  # load 5 into temp register
+    bne $t0, $t8, not_exit    # If x != 5, not exit
+    bne $t1, $zero, not_exit  # If y != 0, not exit
+    li $v0, 1                 # Return 1 (exit found)
     jr $ra
-    
-exit_found:
-    li $v0, 1                 # Return 1 if exit found
+
+not_exit:
+    li $v0, 0                 # return 0 (not exit)
     jr $ra
-    
+
 exit:
-    # To do: Print the final results
-    # Congratulations! 
-    # You reached the exitNumber of mistakes: ??
-    # Total number of moves: ??
+    # Print congratulations and mistakes
+    li $v0, 4                 # print string
+    la $a0, exit_msg
+    syscall
+
+    li $v0, 1                 # print integer
+    lw $a0, mistakes         # load mistakes count
+    syscall
+
+    # Print total moves
+    li $v0, 4                 # print string
+    la $a0, total_moves_msg
+    syscall
+
+    li $v0, 1                 # print integer
+    lw $a0, total_moves      # load total moves
+    syscall
+
+    # End program
+    li $v0, 10               # exit program
+    syscall
     
 
 
