@@ -216,8 +216,7 @@ check_forward:
     lb $t6,0($t5)  # return the forward direction value within current cell 
     li $t7, '1'  # load '1' into temporary register for later use (indeed, this variable can also be assigned at the begining)
     beq $t7, $t6, return_label ### check if this direciton is valid with value of "1". Return to move function if valid move
-    li $t8, 'B' ### This is a place holder for fuction of getting out of the wall when move is invalid. Only with user input of "B", the robot can return to normal status
-    j invalid_move ## jump to invalid move if invalid
+    j invalid_move_forward ## jump to invalid_move_forward if invalid
 
 check_right:
     ## Update stack with return address
@@ -229,8 +228,7 @@ check_right:
     lb $t6,1($t5)  # return the right direction value within current cell 
     li $t7, '1' # load '1' into temporary register for later use (indeed, this variable can also be assigned at the begining)
     beq $t7, $t6, return_label ### check if this direciton is valid with value of "1". Return to move function if valid move
-    li $t8, 'L' ### This is a place holder for fuction of getting out of the wall when move is invalid. Only with user input of "L", the robot can return to normal status
-    j invalid_move ## jump to invalid move if invalid
+    j invalid_move_right ## jump to invalid_move_right move if invalid
 
 check_backward:
     ## Update stack with return address
@@ -242,8 +240,7 @@ check_backward:
     lb $t6,2($t5)   # return the back direction value within current cell 
     li $t7, '1' # load '1' into temporary register for later use (indeed, this variable can also be assigned at the begining)
     beq $t7, $t6, return_label ### check if this direciton is valid with value of "1". Return to move function if valid move
-    li $t8, 'F' ### This is a place holder for fuction of getting out of the wall when move is invalid. Only with user input of "F", the robot can return to normal status
-    j invalid_move ## jump to invalid move if invalid
+    j invalid_move_backwards ## jump to invalid_move_backwards if invalid
 
 check_left:
     ## Update stack with return address
@@ -255,8 +252,7 @@ check_left:
     lb $t6,3($t5)  # return the left direction value within current cell 
     li $t7, '1'  # load '1' into temporary register for later use (indeed, this variable can also be assigned at the begining)
     beq $t7, $t6, return_label  ### check if this direciton is valid with value of "1". Return to move function if valid move
-    li $t8, 'R' ### This is a place holder for fuction of getting out of the wall when move is invalid. Only with user input of "R", the robot can return to normal status
-    j invalid_move ## jump to invalid move if invalid
+    j invalid_move_left ## jump to invalid_move_left if invalid
 
 return_label:
     ## Restore return address and stack pointer
@@ -264,11 +260,85 @@ return_label:
     addi $sp, $sp, 8       # Adjust stack pointer back
     jr $ra
 
-invalid_move:
-    # To do: Print error message
-    
-    j main_loop
+invalid_move_forward:
+    li $v0, 4 # initialise the programme to print a string
+    la $a0, move_error_msg # load error message into $a0
+    syscall # execute the string being printed
 
+    li $v0, 12 # initialise the programme to read a character
+    syscall # execute the read-character function
+    move $v1, $v0 
+
+    addi $s3, $s3, 1 # increment the number of moves by 1
+    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+
+    addi $s2, $s2, 1 # increment the number of mistakes by 1
+    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'B' # load the character 'B' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'B' to get unstuck
+
+    j invalid_move_forward # if 'B' is not entered run invalid_move_forward again
+
+invalid_move_backwards:
+    li $v0, 4 # initialise the programme to print a string
+    la $a0, move_error_msg # load error message into $a0
+    syscall # execute the string being printed
+
+    li $v0, 12 # initialise the programme to read a character
+    syscall # execute the read-character function
+    move $v1, $v0 
+
+    addi $s3, $s3, 1 # increment the number of moves by 1
+    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+
+    addi $s2, $s2, 1 # increment the number of mistakes by 1
+    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'F' # load the character 'F' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'F' to get unstuck
+
+    j invalid_move_backwards # if 'F' is not entered run invalid_move_backwards again
+
+invalid_move_left:
+    li $v0, 4 # initialise the programme to print a string
+    la $a0, move_error_msg # load error message into $a0
+    syscall # execute the string being printed
+
+    li $v0, 12 # initialise the programme to read a character
+    syscall # execute the read-character function
+    move $v1, $v0 
+
+    addi $s3, $s3, 1 # increment the number of moves by 1
+    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+
+    addi $s2, $s2, 1 # increment the number of mistakes by 1
+    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'R' # load the character 'R' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
+
+    j invalid_move_left # if 'R' is not entered run invalid_move_left again
+
+invalid_move_right:
+    li $v0, 4 # initialise the programme to print a string
+    la $a0, move_error_msg # load error message into $a0
+    syscall # execute the string being printed
+
+    li $v0, 12 # initialise the programme to read a character
+    syscall # execute the read-character function
+    move $v1, $v0 
+
+    addi $s3, $s3, 1 # increment the number of moves by 1
+    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+
+    addi $s2, $s2, 1 # increment the number of mistakes by 1
+    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+
+    li $t8, 'L' # load the character 'L' into register $t8
+    beq $v1, $t8, main_loop # check if character inputed by the user is equal to 'R' to get unstuck
+
+    j invalid_move_right # if 'L' is not entered run invalid_move_right again
 
 load_cell_address:
     addi $sp, $sp, -8      # Adjust stack pointer
