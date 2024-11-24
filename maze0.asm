@@ -9,7 +9,7 @@ myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0100, 0000, 1000, 0110, 1000, 111
 
 mazewidth: .word 6
 ycord: .word 6 # This should be the beginning point of the robot, which is row 6. Input ranges from 0-6 (7 rows in total).
-xcord: .word 1 # This should be the beginning point of the robot, which is column 0. Input ranges from 0-5 (6 columns in total). Input above 5 will make the address jumping to next row and return wrong result.
+xcord: .word 0 # This should be the beginning point of the robot, which is column 0. Input ranges from 0-5 (6 columns in total). Input above 5 will make the address jumping to next row and return wrong result.
 
 mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
