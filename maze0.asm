@@ -1,8 +1,8 @@
 .data
 
 
-myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0100, 0000, 1000, 0110, 1000, 1110, 0011, 0000, 1100, 1111, 0010, 0101, 0100, 0000, 0001, 1001, 1110, 0011, 0101, 0000, 1100, 1110, 0111, 1000, 0111, 0000, 0001, 0101, 1001, 1110, 0011, 1000, 1000, 1011, 0010, 1001, 0010,"
-# Each cell contains 4 digits of number. The 4 digits stand for 4 directions, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
+myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0000, 0000, 1000, 0110, 1000, 1110, 0011, 0000, 1100, 1111, 0010, 0101, 0100, 0000, 0001, 1001, 1110, 0011, 0101, 0000, 1100, 1110, 0111, 1000, 0111, 0000, 0001, 0101, 1001, 1110, 0011, 1000, 1000, 1011, 0010, 1001, 0010,"
+# Each cell contains 4 digits of number, 1 digit of ',' , and 1 digit of ' '. The 4 numeric digits stand for 4 operations, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
 
 # All cells in the first row and first column are considered outside the maze, and are filled with number "0000", except for the starting point.
 # The maze is 5x6 
@@ -47,7 +47,7 @@ beginning_loop:
 	syscall
 	move $t4, $v0
 
-    beq $t4, 'R', start_maze
+    beq $t4, 'F', start_maze
 	j beginning_loop
 
 # informs user they have entered the maze and starts main loop
@@ -73,6 +73,10 @@ main_loop:
     j main_loop                # Otherwise, continue with the main loop
     
 get_user_input:
+    la $a0, new_line
+    li $v0, 4
+    syscall
+    
     # Read user input (F, B, L, R)
     addi $v0, $zero, 12
     syscall
@@ -103,15 +107,15 @@ update_position:
     addi $sp, $sp, -8      # Adjust stack pointer
     sw $ra, 4($sp)         # Save return address
 
+    # Increment the total moves counter
+    addi $s3, $s3, 1
+    sw $s3, total_moves
+
     # Update the robot's position based on the user input
     beq $t4, 'F', move_forward
     beq $t4, 'B', move_backward
     beq $t4, 'L', move_left
     beq $t4, 'R', move_right
-
-    # Increment the total moves counter
-    addi $s3, $s3, 1
-    sw $s3, total_moves
 
     # Restore return address and stack pointer
     lw $ra, 4($sp)         # Restore return address
@@ -263,12 +267,14 @@ invalid_move_forward:
     la $a0, move_error_msg # load error message into $a0
     syscall # execute the string being printed
 
-    li $v0, 12 # initialise the programme to read a character
-    syscall # execute the read-character function
-    move $v1, $v0 
-
-    addi $s3, $s3, 1 # increment the number of moves by 1
-    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+    # Save return address before calling get_user_input 
+    addi $sp, $sp, -4 
+    sw $ra, 0($sp) 
+    jal get_user_input # Use the existing get_user_input function 
+    
+    # Restore return address 
+    lw $ra, 0($sp) 
+    addi $sp, $sp, 4
 
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
@@ -283,12 +289,14 @@ invalid_move_backwards:
     la $a0, move_error_msg # load error message into $a0
     syscall # execute the string being printed
 
-    li $v0, 12 # initialise the programme to read a character
-    syscall # execute the read-character function
-    move $v1, $v0 
-
-    addi $s3, $s3, 1 # increment the number of moves by 1
-    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+    # Save return address before calling get_user_input 
+    addi $sp, $sp, -4 
+    sw $ra, 0($sp) 
+    jal get_user_input # Use the existing get_user_input function 
+    
+    # Restore return address 
+    lw $ra, 0($sp) 
+    addi $sp, $sp, 4
 
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
@@ -303,12 +311,14 @@ invalid_move_left:
     la $a0, move_error_msg # load error message into $a0
     syscall # execute the string being printed
 
-    li $v0, 12 # initialise the programme to read a character
-    syscall # execute the read-character function
-    move $v1, $v0 
-
-    addi $s3, $s3, 1 # increment the number of moves by 1
-    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+    # Save return address before calling get_user_input 
+    addi $sp, $sp, -4 
+    sw $ra, 0($sp) 
+    jal get_user_input # Use the existing get_user_input function 
+    
+    # Restore return address 
+    lw $ra, 0($sp) 
+    addi $sp, $sp, 4
 
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
@@ -323,12 +333,14 @@ invalid_move_right:
     la $a0, move_error_msg # load error message into $a0
     syscall # execute the string being printed
 
-    li $v0, 12 # initialise the programme to read a character
-    syscall # execute the read-character function
-    move $v1, $v0 
-
-    addi $s3, $s3, 1 # increment the number of moves by 1
-    sw $s3, total_moves #save the total moves to the 'total_moves' variable
+    # Save return address before calling get_user_input 
+    addi $sp, $sp, -4 
+    sw $ra, 0($sp) 
+    jal get_user_input # Use the existing get_user_input function 
+    
+    # Restore return address 
+    lw $ra, 0($sp) 
+    addi $sp, $sp, 4
 
     addi $s2, $s2, 1 # increment the number of mistakes by 1
     sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
@@ -344,7 +356,7 @@ load_cell_address:
     # Load cell beginning address into $t5
     mul $t5, $t1, $s1  # Multiply y-coordinate by width of maze, save the result in $t5
     add $t5, $t5, $t0  # Add the result by x-coordinate, and get the index of the target cell on the 1-D arrary, save the result back to $t5
-    mul $t5, $t5, 5  # Since each cell contains 5 digits (4 number and a ","), multiply the index by 5 to get the actual memory address offset, and save the offset value into $t5
+    mul $t5, $t5, 6  # Since each cell contains 6 digits (4 number, a ",", and a " "), multiply the index by 6 to get the actual memory address offset, and save the offset value into $t5
     add $t5, $s0, $t5  # Based on the address of the maze array $s0, jump to the address of the target cell with offset value, save the address of the cell into $t5
     
     lw $ra, 4($sp)         # Restore return address
@@ -398,14 +410,16 @@ exit:
 welcome_msg: 
     .asciiz "\n\nWelcome to the MiPS maze solver!\nSteer the robot by enter directions: R for right, L for left, F for forward, and B for backward.\n"
 enter_maze_msg: 
-    .asciiz "\nInput R to enter the maze.\n"
+    .asciiz "\nInput F to enter the maze.\n"
 maze_start_msg: 
-    .asciiz "---\n\nYOU ENTER THE MAZE\n\n---"
+    .asciiz "\n---\n\nYOU ENTER THE MAZE\n\n---"
 move_error_msg:
-    .asciiz "Invalid move! Try again...\n"
+    .asciiz "\nInvalid move! Try again..."
+new_line:
+    .asciiz "\n"
 exit_msg:
-    .asciiz "Congratulations! You reached the exit.\nNumber of mistakes: "
+    .asciiz "\nCongratulations! You reached the exit.\nNumber of mistakes: "
 total_moves_msg:
     .asciiz "\nTotal number of moves: "
 input_error_msg:
-    .asciiz "Invalid input! Please enter R, L, F, or B.\n"
+    .asciiz "\nInvalid input! Please enter R, L, F, or B."
