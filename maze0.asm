@@ -376,7 +376,7 @@ count_unstuck_move:
 check_exit:
     # Check if the robot reach to the exit, if so return 1 (exit condition)
     # Check if x = 5 and y = 0
-    li $t9, 4                  # load 5 into temp register
+    li $t9, 5                  # load 5 into temp register
     bne $t0, $t9, not_exit    # If x != 5, not exit
     bne $t1, $zero, not_exit  # If y != 0, not exit
     li $v0, 1                 # Return 1 (exit found)
