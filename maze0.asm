@@ -3,13 +3,15 @@
 
 myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0000, 0000, 1000, 0110, 1000, 1110, 0011, 0000, 1100, 1111, 0010, 0101, 0100, 0000, 0001, 1001, 1110, 0011, 0101, 0000, 1100, 1110, 0111, 1000, 0111, 0000, 0001, 0101, 1001, 1110, 0011, 1000, 1000, 1011, 0010, 1001, 0010,"
 # Each cell contains 4 digits of number, 1 digit of ',' , and 1 digit of ' '. The 4 numeric digits stand for 4 operations, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
-
 # All cells in the first row and first column are considered outside the maze, and are filled with number "0000", except for the starting point.
 # The maze is 5x6 
 
 mazewidth: .word 6
-ycord: .word 6 # This should be the beginning point of the robot, which is row 6. Input ranges from 0-6 (7 rows in total).
-xcord: .word 0 # This should be the beginning point of the robot, which is column 0. Input ranges from 0-5 (6 columns in total). Input above 5 will make the address jumping to next row and return wrong result.
+ycord: .word 6 # The beginning point of the robot, which is row 6. Input ranges from 0-6 (7 rows in total).
+xcord: .word 0 # The beginning point of the robot, which is column 0. Input ranges from 0-5 (6 columns in total). Input above 5 will make the address jumping to next row and return wrong result.
+
+exit_ycord: .word 0 # The exit of the maze, which is row 0.
+exit_xcord: .word 5 # The exit of the maze, which is column 5.
 
 mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
@@ -19,16 +21,20 @@ total_moves: .word 0  # Total number of moves
 main:
     la $s0, myarray       # Load the base address of the maze
     lw $s1, mazewidth     # Load maze width into $s1
-    lw $s2, mistakes      # Load the number of mistakes into $s2
-    lw $s3, total_moves   # Load the total number of moves into $s3
-
+    lw $s2, exit_xcord     # Load maze exit x-coordinate into $s2
+    lw $s3, exit_ycord     # Load maze exit y-coordinate into $s3
+        
     lw $t0, xcord         # Load x-coordinate into $t0
     lw $t1, ycord         # Load y-coordinate into $t1
-     # $t4 is reserved for checking if user input is valid
+    lw $t2, mistakes      # Load the number of mistakes into $t2
+    lw $t3, total_moves   # Load the total number of moves into $t3
+
+     # $t4 is reserved to save user input
      # $t5 is reserved to save the beginning address of a cell in the 1-D array
      # $t6 is reserved to save the value of a certain direction (wall) within a certain cell
      # $t7 is reserved for checking if the move direction is valid
      # $t8 is reserved for checking if the input is correct when the robot has been stuck in a wall
+     # $t9 is reserved for checking if user input is valid
     
     la $a0, welcome_msg   # Load the address of the welcome message
     li $v0, 4             # Print the welcome message
@@ -54,8 +60,8 @@ beginning_loop:
 start_maze:
     jal increase_xcord
     # Increment the total moves counter
-    addi $s3, $s3, 1
-    sw $s3, total_moves
+    addi $t3, $t3, 1
+    sw $t3, total_moves
 
 	addi $v0, $zero, 4 
 	la $a0, maze_start_msg
@@ -113,8 +119,8 @@ update_position:
     sw $ra, 4($sp)         # Save return address
 
     # Increment the total moves counter
-    addi $s3, $s3, 1
-    sw $s3, total_moves
+    addi $t3, $t3, 1
+    sw $t3, total_moves
 
     # Update the robot's position based on the user input
     beq $t4, 'F', move_forward
@@ -281,8 +287,8 @@ invalid_move_forward:
     lw $ra, 0($sp) 
     addi $sp, $sp, 4
 
-    addi $s2, $s2, 1 # increment the number of mistakes by 1
-    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+    addi $t2, $t2, 1 # increment the number of mistakes by 1
+    sw $t2, mistakes # save the number of mistakes to the 'mistakes' variable
 
     li $t8, 'B' # load the character 'B' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'B' to get unstuck
@@ -303,8 +309,8 @@ invalid_move_backwards:
     lw $ra, 0($sp) 
     addi $sp, $sp, 4
 
-    addi $s2, $s2, 1 # increment the number of mistakes by 1
-    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+    addi $t2, $t2, 1 # increment the number of mistakes by 1
+    sw $t2, mistakes # save the number of mistakes to the 'mistakes' variable
 
     li $t8, 'F' # load the character 'F' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'F' to get unstuck
@@ -325,8 +331,8 @@ invalid_move_left:
     lw $ra, 0($sp) 
     addi $sp, $sp, 4
 
-    addi $s2, $s2, 1 # increment the number of mistakes by 1
-    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+    addi $t2, $t2, 1 # increment the number of mistakes by 1
+    sw $t2, mistakes # save the number of mistakes to the 'mistakes' variable
 
     li $t8, 'R' # load the character 'R' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
@@ -347,8 +353,8 @@ invalid_move_right:
     lw $ra, 0($sp) 
     addi $sp, $sp, 4
 
-    addi $s2, $s2, 1 # increment the number of mistakes by 1
-    sw $s2, mistakes # save the number of mistakes to the 'mistakes' variable
+    addi $t2, $t2, 1 # increment the number of mistakes by 1
+    sw $t2, mistakes # save the number of mistakes to the 'mistakes' variable
 
     li $t8, 'L' # load the character 'L' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
@@ -369,16 +375,22 @@ load_cell_address:
     jr $ra
   
 count_unstuck_move:
-    addi $s3, $s3, 1 # increment for unstuck move
-    sw $s3, total_moves
+    addi $t3, $t3, 1 # increment for unstuck move
+    sw $t3, total_moves
     j main_loop
 
 check_exit:
+    # This part is used to print out coordinates for each step
+    # move $a0,$t1
+    # li  $v0, 1 
+    # syscall
+    # move $a0,$t0
+    # li  $v0, 1 
+    # syscall
+    
     # Check if the robot reach to the exit, if so return 1 (exit condition)
-    # Check if x = 5 and y = 0
-    li $t9, 5                  # load 5 into temp register
-    bne $t0, $t9, not_exit    # If x != 5, not exit
-    bne $t1, $zero, not_exit  # If y != 0, not exit
+    bne $t0, $s2, not_exit    # If x != exit xcord, not exit
+    bne $t1, $s3, not_exit  # If y != exit ycord, not exit
     li $v0, 1                 # Return 1 (exit found)
     jr $ra
 
