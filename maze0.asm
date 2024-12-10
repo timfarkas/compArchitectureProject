@@ -1,4 +1,3 @@
-
 .data
 myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0000, 0000, 1000, 0110, 1000, 1110, 0011, 0000, 1100, 1111, 0010, 0101, 0100, 0000, 0001, 1001, 1110, 0011, 0101, 0000, 1100, 1110, 0111, 1000, 0111, 0000, 0001, 0101, 1001, 1110, 0011, 1000, 1000, 1011, 0010, 1001, 0010,"
 # Each cell contains 4 digits of number, 1 digit of ',' , and 1 digit of ' '. The 4 numeric digits stand for 4 operations, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
@@ -23,8 +22,6 @@ maze_start_msg:
     .asciiz " ---- YOU ENTER THE MAZE"
 move_error_msg:
     .asciiz "\nInvalid move! Try again..."
-arrow: 
-    .asciiz "->"
 stuck_msg:
     .asciiz "\nYou are stuck in the wall. Please get out first."
 new_line:
@@ -35,6 +32,8 @@ total_moves_msg:
     .asciiz "\nTotal number of moves: "
 input_error_msg:
     .asciiz "\nInvalid input! Please enter R, L, F, or B."
+arrow: 
+    .asciiz "->"
 
 .text
 .globl main
@@ -342,8 +341,6 @@ invalid_move_backwards:
     la $a0, stuck_msg
     li $v0, 4
     syscall
-    
-    
 
     j invalid_move_backwards # if 'F' is not entered run invalid_move_backwards again
 
@@ -418,7 +415,7 @@ count_unstuck_move:
     j main_loop
 
 check_exit:
-    # This part is used to print out coordinates for each step
+    # This part is used to print out coordinates for each step for debugging
     #la $a0, arrow  
     #li $v0, 4       
     #syscall
@@ -432,11 +429,9 @@ check_exit:
     # Check if the robot reach to the exit, if so return 1 (exit condition)
     bne $t0, $s2, not_exit    # If x != exit xcord, not exit
     bne $t1, $s3, not_exit  # If y != exit ycord, not exit
-    li $v0, 1                 # Return 1 (exit found)
     j exit
     
 not_exit:
-    li $v0, 0                 # return 0 (not exit)
     jr $ra
 
 exit:
