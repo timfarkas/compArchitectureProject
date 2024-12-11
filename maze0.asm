@@ -31,7 +31,9 @@ exit_msg:
 total_moves_msg:
     .asciiz "\nTotal number of moves: "
 input_error_msg:
-    .asciiz "\nInvalid input! Please enter R, L, F, or B."
+    .asciiz "\nInvalid input! Please enter R, L, F, or B. (Uppercase or Lowercase)"
+empty_msg:
+    .asciiz "\nEmpty input. Abort the program now.\n"
 arrow: 
     .asciiz "->"
 
@@ -42,6 +44,8 @@ main:
     lw $s1, mazewidth     # Load maze width into $s1
     lw $s2, exit_xcord     # Load maze exit x-coordinate into $s2
     lw $s3, exit_ycord     # Load maze exit y-coordinate into $s3
+
+     # $s4 is reserved to load 10, which is '\n' in ascii. This is used to escape program with empty user input
         
     lw $t0, xcord         # Load x-coordinate into $t0
     lw $t1, ycord         # Load y-coordinate into $t1
@@ -70,9 +74,12 @@ beginning_loop:
     # Read inital character
     addi $v0, $zero, 12 
 	syscall
-	move $t4, $v0
+	move $v1, $v0
 
-    beq $t4, 'F', start_maze
+    beq $v1, 'F', start_maze
+    beq $v1, 'f', start_maze
+    li $s4, 10                 # 10 is '\n' in ascii, this code is used to escape program with empty user input
+    beq $v1, $s4, empty_abort
 	j beginning_loop
 
 # informs user they have entered the maze and starts main loop
@@ -115,12 +122,23 @@ get_user_input:
     # Check if the user input is valid (F, B, L, R)
     li $t9, 'F'
     beq $v1, $t9, valid_input
+    li $t9, 'f'
+    beq $v1, $t9, valid_input
     li $t9, 'B'
+    beq $v1, $t9, valid_input
+    li $t9, 'b'
     beq $v1, $t9, valid_input
     li $t9, 'L'
     beq $v1, $t9, valid_input
+    li $t9, 'l'
+    beq $v1, $t9, valid_input
     li $t9, 'R'
     beq $v1, $t9, valid_input
+    li $t9, 'r'
+    beq $v1, $t9, valid_input
+    
+    li $s4, 10                 # 10 is '\n' in ascii, this code is used to escape program with empty user input
+    beq $v1, $s4, empty_abort
 
     # Invalid input: Show error message and repeat
     la $a0, input_error_msg
@@ -143,9 +161,13 @@ update_position:
 
     # Update the robot's position based on the user input
     beq $t4, 'F', move_forward
+    beq $t4, 'f', move_forward
     beq $t4, 'B', move_backward
+    beq $t4, 'b', move_backward
     beq $t4, 'L', move_left
+    beq $t4, 'l', move_left
     beq $t4, 'R', move_right
+    beq $t4, 'r', move_right
 
     # Restore return address and stack pointer
     lw $ra, 4($sp)         # Restore return address
@@ -311,12 +333,15 @@ invalid_move_forward:
 
     li $t8, 'B' # load the character 'B' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'B' to get unstuck
+   
+    li $t8, 'b' # load the character 'b' into register $t8
+    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'b' to get unstuck
     
     la $a0, stuck_msg
     li $v0, 4
     syscall
 
-    j invalid_move_forward # if 'B' is not entered run invalid_move_forward again
+    j invalid_move_forward # if 'B' or 'b' is not entered run invalid_move_forward again
 
 invalid_move_backwards:
     li $v0, 4 # initialise the programme to print a string
@@ -338,11 +363,14 @@ invalid_move_backwards:
     li $t8, 'F' # load the character 'F' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'F' to get unstuck
     
+    li $t8, 'f' # load the character 'f' into register $t8
+    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'f' to get unstuck
+    
     la $a0, stuck_msg
     li $v0, 4
     syscall
 
-    j invalid_move_backwards # if 'F' is not entered run invalid_move_backwards again
+    j invalid_move_backwards # if 'F' or 'f' is not entered run invalid_move_backwards again
 
 invalid_move_left:
     li $v0, 4 # initialise the programme to print a string
@@ -364,11 +392,14 @@ invalid_move_left:
     li $t8, 'R' # load the character 'R' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
 
+    li $t8, 'r' # load the character 'r' into register $t8
+    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'r' to get unstuck
+
     la $a0, stuck_msg
     li $v0, 4
     syscall
     
-    j invalid_move_left # if 'R' is not entered run invalid_move_left again
+    j invalid_move_left # if 'R' or 'r' is not entered run invalid_move_left again
 
 invalid_move_right:
     li $v0, 4 # initialise the programme to print a string
@@ -388,13 +419,16 @@ invalid_move_right:
     sw $t2, mistakes # save the number of mistakes to the 'mistakes' variable
 
     li $t8, 'L' # load the character 'L' into register $t8
-    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
-    
+    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'L' to get unstuck
+
+    li $t8, 'l' # load the character 'l' into register $t8
+    beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'l' to get unstuck
+       
     la $a0, stuck_msg
     li $v0, 4
     syscall
 
-    j invalid_move_right # if 'L' is not entered run invalid_move_right again
+    j invalid_move_right # if 'L' or 'l' is not entered run invalid_move_right again
 
 load_cell_address:
     addi $sp, $sp, -8      # Adjust stack pointer
@@ -458,3 +492,12 @@ exit:
     syscall
     
 
+empty_abort:        # If user entered an empty value by press "enter", will end program
+    la $a0, empty_msg
+    li $v0, 4 
+    syscall
+    
+     # End program
+    li $v0, 10               # exit program
+    syscall
+    
