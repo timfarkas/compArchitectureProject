@@ -1,6 +1,4 @@
 .data
-
-
 myarray: .ascii "0000, 0000, 0000, 0000, 0000, 0000, 0000, 1000, 0110, 1000, 1110, 0011, 0000, 1100, 1111, 0010, 0101, 0100, 0000, 0001, 1001, 1110, 0011, 0101, 0000, 1100, 1110, 0111, 1000, 0111, 0000, 0001, 0101, 1001, 1110, 0011, 1000, 1000, 1011, 0010, 1001, 0010,"
 # Each cell contains 4 digits of number, 1 digit of ',' , and 1 digit of ' '. The 4 numeric digits stand for 4 operations, which are "Forward,Right,Back,Left" respectively, where "0" stands for wall, "1" stands for valid path
 # All cells in the first row and first column are considered outside the maze, and are filled with number "0000", except for the starting point.
@@ -15,6 +13,27 @@ exit_xcord: .word 5 # The exit of the maze, which is column 5.
 
 mistakes: .word 0     # Number of mistakes
 total_moves: .word 0  # Total number of moves
+
+welcome_msg: 
+    .asciiz "\n\nWelcome to the MiPS maze solver!\nSteer the robot by enter directions: R for right, L for left, F for forward, and B for backward.\n"
+enter_maze_msg: 
+    .asciiz "\nInput F to enter the maze.\n"
+maze_start_msg:
+    .asciiz " ---- YOU ENTER THE MAZE"
+move_error_msg:
+    .asciiz "\nInvalid move! Try again..."
+stuck_msg:
+    .asciiz "\nYou are stuck in the wall. Please get out first."
+new_line:
+    .asciiz "\n"
+exit_msg:
+    .asciiz "\nCongratulations! You reached the exit.\nNumber of mistakes: "
+total_moves_msg:
+    .asciiz "\nTotal number of moves: "
+input_error_msg:
+    .asciiz "\nInvalid input! Please enter R, L, F, or B."
+arrow: 
+    .asciiz "->"
 
 .text
 .globl main
@@ -292,6 +311,10 @@ invalid_move_forward:
 
     li $t8, 'B' # load the character 'B' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'B' to get unstuck
+    
+    la $a0, stuck_msg
+    li $v0, 4
+    syscall
 
     j invalid_move_forward # if 'B' is not entered run invalid_move_forward again
 
@@ -314,6 +337,10 @@ invalid_move_backwards:
 
     li $t8, 'F' # load the character 'F' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'F' to get unstuck
+    
+    la $a0, stuck_msg
+    li $v0, 4
+    syscall
 
     j invalid_move_backwards # if 'F' is not entered run invalid_move_backwards again
 
@@ -337,6 +364,10 @@ invalid_move_left:
     li $t8, 'R' # load the character 'R' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
 
+    la $a0, stuck_msg
+    li $v0, 4
+    syscall
+    
     j invalid_move_left # if 'R' is not entered run invalid_move_left again
 
 invalid_move_right:
@@ -358,6 +389,10 @@ invalid_move_right:
 
     li $t8, 'L' # load the character 'L' into register $t8
     beq $v1, $t8, count_unstuck_move # check if character inputed by the user is equal to 'R' to get unstuck
+    
+    la $a0, stuck_msg
+    li $v0, 4
+    syscall
 
     j invalid_move_right # if 'L' is not entered run invalid_move_right again
 
@@ -380,22 +415,23 @@ count_unstuck_move:
     j main_loop
 
 check_exit:
-    # This part is used to print out coordinates for each step
-    # move $a0,$t1
-    # li  $v0, 1 
-    # syscall
-    # move $a0,$t0
-    # li  $v0, 1 
-    # syscall
+    # This part is used to print out coordinates for each step for debugging
+    #la $a0, arrow  
+    #li $v0, 4       
+    #syscall
+    #move $a0,$t1
+    #li  $v0, 1 
+    #syscall
+    #move $a0,$t0
+    #li  $v0, 1 
+    #syscall
     
     # Check if the robot reach to the exit, if so return 1 (exit condition)
     bne $t0, $s2, not_exit    # If x != exit xcord, not exit
     bne $t1, $s3, not_exit  # If y != exit ycord, not exit
-    li $v0, 1                 # Return 1 (exit found)
-    jr $ra
-
+    j exit
+    
 not_exit:
-    li $v0, 0                 # return 0 (not exit)
     jr $ra
 
 exit:
@@ -422,21 +458,3 @@ exit:
     syscall
     
 
-
-.data
-welcome_msg: 
-    .asciiz "\n\nWelcome to the MiPS maze solver!\nSteer the robot by enter directions: R for right, L for left, F for forward, and B for backward.\n"
-enter_maze_msg: 
-    .asciiz "\nInput F to enter the maze.\n"
-maze_start_msg: 
-    .asciiz "\n---\n\nYOU ENTER THE MAZE\n\n---"
-move_error_msg:
-    .asciiz "\nInvalid move! Try again..."
-new_line:
-    .asciiz "\n"
-exit_msg:
-    .asciiz "\nCongratulations! You reached the exit.\nNumber of mistakes: "
-total_moves_msg:
-    .asciiz "\nTotal number of moves: "
-input_error_msg:
-    .asciiz "\nInvalid input! Please enter R, L, F, or B."
